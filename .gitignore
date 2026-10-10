@@ -1,0 +1,22 @@
+# Azure CLI and Bicep local files
+*.bicepparam.local
+*.parameters.local.json
+.azure/
+
+# Secrets and environment files
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Operating system and editor files
+.DS_Store
+.vscode/
+.idea/
+
+# Generated evidence and temporary files
+*.log
+*.tmp
+what-if.txt
+
