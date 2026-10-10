@@ -1,0 +1,89 @@
+digraph AzureLab2 {
+  graph [
+    rankdir=TB,
+    bgcolor="white",
+    pad="0.35",
+    nodesep="0.55",
+    ranksep="0.75",
+    fontname="Arial",
+    fontsize=18,
+    label="Arquitectura del proyecto integrador en Azure Lab 2\nRegión: Chile Central",
+    labelloc=t
+  ];
+  node [shape=box, style="rounded,filled", fontname="Arial", fontsize=10, color="#486581", fillcolor="#F5F8FA", margin="0.16,0.10"];
+  edge [fontname="Arial", fontsize=9, color="#526D82", arrowsize=0.7];
+
+  users [label="Usuarios\nInternet", shape=oval, fillcolor="#FFFFFF"];
+  webapp [label="Linux Web App\nNode.js 24 LTS\nHTTPS y TLS 1.2", fillcolor="#E6F2FF"];
+  plan [label="App Service Plan\nBasic B1", fillcolor="#E6F2FF"];
+  insights [label="Application Insights", fillcolor="#F1ECFF"];
+  logs [label="Log Analytics\n30 días", fillcolor="#F1ECFF"];
+
+  subgraph cluster_vnet {
+    label="VNet 10.0.0.0/16";
+    color="#1F6F8B";
+    penwidth=2;
+    style="rounded";
+    fontname="Arial";
+    fontsize=14;
+
+    subgraph cluster_app {
+      label="Subred App 10.0.1.0/24";
+      color="#9ABBD0";
+      style="rounded";
+      appint [label="Integración VNet\nMicrosoft.Web/serverFarms", fillcolor="#E6F2FF"];
+    }
+
+    subgraph cluster_db {
+      label="Subred DB 10.0.2.0/24";
+      color="#9ABBD0";
+      style="rounded";
+      pgpe [label="Private Endpoint\nPostgreSQL", fillcolor="#EAF7EA"];
+    }
+
+    subgraph cluster_vm {
+      label="Subred VM 10.0.3.0/24";
+      color="#9ABBD0";
+      style="rounded";
+      vm [label="VM Windows Server 2025\nStandard B2als v2\nIP privada 10.0.3.4", fillcolor="#FFF4E5"];
+    }
+
+    subgraph cluster_pe {
+      label="Subred Private Endpoints 10.0.4.0/24";
+      color="#9ABBD0";
+      style="rounded";
+      blobpe [label="Private Endpoint\nBlob", fillcolor="#EAF7EA"];
+    }
+
+    subgraph cluster_bastion {
+      label="AzureBastionSubnet 10.0.5.0/26";
+      color="#B8C5CE";
+      style="rounded,dashed";
+      bastion [label="Subred reservada\nBastion no desplegado", fillcolor="#FAFAFA"];
+    }
+  }
+
+  postgres [label="PostgreSQL Flexible Server 18\nB1ms y 32 GiB\nBD integradora\nAcceso público deshabilitado", fillcolor="#DFF3E4"];
+  storage [label="StorageV2 Standard LRS\nContenedor smartrh\nAcceso público deshabilitado", fillcolor="#DFF3E4"];
+  pgdns [label="DNS privada\nprivatelink.postgres.database.azure.com", shape=note, fillcolor="#FFFFFF"];
+  blobdns [label="DNS privada\nprivatelink.blob.core.windows.net", shape=note, fillcolor="#FFFFFF"];
+
+  users -> webapp [label="HTTPS público"];
+  plan -> webapp [label="hospeda"];
+  webapp -> appint [label="integración saliente"];
+  webapp -> insights [label="telemetría"];
+  insights -> logs [label="workspace"];
+
+  appint -> pgpe [label="tráfico privado"];
+  vm -> pgpe [label="datos"];
+  vm -> blobpe [label="archivos"];
+
+  pgpe -> postgres [label="Private Link"];
+  blobpe -> storage [label="Private Link"];
+  pgdns -> pgpe [style=dashed, label="resolución"];
+  blobdns -> blobpe [style=dashed, label="resolución"];
+
+  {rank=same; plan; webapp; insights; logs;}
+  {rank=same; postgres; storage;}
+}
+
