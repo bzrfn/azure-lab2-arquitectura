@@ -1,0 +1,7 @@
+using './main.bicep'
+
+// Copia este archivo como main.bicepparam.local y cambia el sufijo.
+// Las contrasenas no se guardan aqui: los scripts las reciben mediante variables de entorno.
+param location = 'chilecentral'
+param uniqueSuffix = 'reemplazar'
+
